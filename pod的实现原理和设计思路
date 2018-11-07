@@ -1,0 +1,76 @@
+    #Pod概念理解（实现原理）
+        Pod，是一组共享了某些资源的容器，共享了同一个network namespace，并且可以声明共享同一个volume。
+        不同于容器A共享了另外一个容器B的网络和volume：
+        $ docker run --net=B --volumes-from=B --name=A image-A ...
+        容器B必须要比A西安启动，这样A、B就不是对等关系了，而是拓扑关系。
+        在k8s中，pod实现需要一个中间容器infra容器，永远第一个被创建，其他的用户定义的容器，则通过join network namespace的方式，和他相关联：
+                                
+        在k8s中这个容器就是k8s.gcr.io/pause，一个用汇编语言编写，永远处于“暂停”状态的容器，解压只有100~200K左右。
+        可以查看A、B两个容器的namespace文件，他们的指向值都是一样的，这意味着：
+        1）他们可以直接使用localhost通信
+        2）他们看到的网络设备跟Infra容器看到的完全一样
+        3）一个pod只有一个IP地址，即network namespace对应的IP
+        4）所有网络资源被pod中容器共享
+        5）pod生命周期和Infra容器一致和AB无关
+
+        ##Pod的volume共享：
+        
+        debian和ngnix都声明挂在了shared-data这个volume，share-data是hostPath类型。他对应的宿主机的目录是/data，这个目录被挂载进了两个容器中。
+
+    #容器设计模型（思路）
+        举例：java web应用的WAR包需要放在Tomcat的webapps下运行
+        方案一：将WAR包直接放在Tomcat靖藏的webapps目录下，提交成为新的镜像运行
+        缺点：更新升级时需要重新制作镜像
+        方案二：发布一个Tomcat容器，但是在webapps目录必须要一个hostPath类型的Volume，把宿主机的WAR包挂载进容器。
+        缺点：需要保证宿主机都存在WAR包。
+        
+        利用pod可以将两结合起来，将WAR包和Tomcat做成两个镜像
+                               
+        yaml文件解析：
+        定义了两个容器：
+                initContainers：geektime/sample：v2 该镜像只有一个WAR包，放在根目录下
+                containers：用的是标准的Tomcat镜像
+                所有定义的init container都比spec.container定义的用户容器先启动，并且init container容器会按照顺序              启动，知道他们都启动并且退出了，用户容器才会启动。
+                上述command，执行拷贝操作，将WAR包拷到/app目录下，而后有挂载一个app-volume的目录，该目录           为一个空目录。
+                Tomcat也同样挂载app-volume到自己的webapps目录下，因此WAR包会在webapps目录下。
+
+        总结：Pod，实际上是在扮演传统基础设施里“虚拟机”的角色；而容器是虚拟机里面运行的用户程序。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
