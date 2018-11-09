@@ -50,15 +50,15 @@ https://blog.csdn.net/zzq900503/article/details/81710319<br>https://blog.csdn.ne
 
             To start using your cluster, you need to run the following as a regular user:
             `mkdir -p $HOME/.kube`
-            `sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config`
-            `sudo chown $(id -u):$(id -g) $HOME/.kube/config`
+            sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+            sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
             You should now deploy a pod network to the cluster.
             Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
                https://kubernetes.io/docs/concepts/cluster-administration/addons/
 
             You can now join any number of machines by running the following on each node as root:
-            kubeadm join 10.12.12.183:6443 --token 57xxux.arjdeme44pfk7yd7 --discovery-token-ca-cert-hash sha256:95c6caf4cdf38931fb79825fc5601e383b1e327f166e7e131e1f17ac39a0ee1a
+            kubeadm join 10.12.12.183:6443 --token 57xxux.arjdeme44pfk7yd7 --discovery-token-ca-cert-hash                                   sha256:95c6caf4cdf38931fb79825fc5601e383b1e327f166e7e131e1f17ac39a0ee1a
 ## 问题三：若开始kubeadm init失败的，再次操作时需要kubeadm reset清理环境重来
 在init以后一定要执行高亮的语句，否则可能出现下列问题或者每次都需要导入环境变量来识别加密文件：
             $ kubectl get pods -n kube-system
