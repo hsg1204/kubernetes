@@ -1,7 +1,5 @@
 Single node cluster 
 ====
-install kubeadm and docker
-----
 # 安装kubeadm的流程和大部分问题解决方法
 https://blog.csdn.net/zzq900503/article/details/81710319<br>https://blog.csdn.net/nklinsirui/article/details/80581286#debian-ubuntu
 # 安装kubeadm
